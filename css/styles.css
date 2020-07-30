@@ -13,8 +13,8 @@ header{
     justify-content: space-between;
     background-color: teal;
     color: white;
-    height: 70px;
-    padding-left: 20px;
+    height: 50px;
+    padding: 20px;
  
 }
 
@@ -22,10 +22,12 @@ header a{
     color: white;
     text-decoration: none;
     padding-top: 28px;
+    padding-right: 20px;
 }
 
 header h1{
     margin: 0;
+    padding-top: 10px;
 }
 
 main{

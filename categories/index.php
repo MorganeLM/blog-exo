@@ -1,5 +1,5 @@
 <?php
-    require_once '../include/connect.php';
+    include_once '../include/header.php';
 
 // II) PARTIE POUR AJOUTER LES DONNéES DE LA BASE 
     // On vérifie que POST n'est pas vide
@@ -41,28 +41,8 @@ $categories = $query->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
-
-
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des catégories</title>
-    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
-    <link rel="stylesheet" href="../css/styles.css">
-</head>
-<body>
-    <header>
-        <a href="../index.php"><h1>Mon blog</h1></a> 
-        </div>
-            <a href="categories/index.php">Catégories</a>
-            <a href="../users/index.php">Inscription</a>
-            <a href="../connexion/index.php">Connexion</a>
-        <div>
-    </header>
-
     <main>
+
         <h2>Liste des catégories :</h2>
         <ul>
             <?php foreach ($categories as $categorie): ?>

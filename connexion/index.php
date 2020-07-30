@@ -1,21 +1,4 @@
-
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog</title>
-    <link rel="stylesheet" href="../css/styles.css">
-</head>
-<body>
-    <header>
-        <a href="../index.php"><h1>Mon blog</h1></a> 
-        </div>
-            <a href="../categories/index.php">Catégories</a>
-            <a href="../users/index.php">Inscription</a>
-            <a href="index.php">Connexion</a>
-        <div>
-    </header>
+<?php include_once '../include/header.php' ?>
 
     <main>
         <h2>Se connecter :</h2>
@@ -32,8 +15,6 @@
         </form>
 
 <?php
-    require_once '../include/connect.php';
-
     if(!empty($_POST)){
         // POST n'est pas vide, on vérifie tous les champs obligatoires
         if(
@@ -64,9 +45,15 @@
             if ($valid) {
                 echo '<p>---- Mot de passe valide! ----</p>';
 
-                session_start();
                 var_dump($_SESSION);
-                $_SESSION['pseudo'] = $user['nickname'];
+
+                $_SESSION['user'] = [
+                    'id'        => $user['id'],
+                    'nickname'  => $user['nickname'],
+                    'email'     => $user['email'],
+                    'roles'     => $user['roles']
+                ];
+                
                 header('Location: ../index.php');
 
             } else {
