@@ -1,6 +1,10 @@
 <?php
     require_once '../include/connect.php';
 
+
+    $erreur1 ="";
+    $erreur2 ="";
+    $erreur3 ="";
 // II) PARTIE POUR AJOUTER LES DONNéES DE LA BASE 
     // On vérifie que POST n'est pas vide
     if(!empty($_POST)){
@@ -8,33 +12,45 @@
         if(
             isset($_POST['name']) && !empty($_POST['name']) 
             && isset($_POST['mdp']) && !empty($_POST['mdp']) 
-            && isset($_POST['email']) && !empty($_POST['email']) 
+            && isset($_POST['mdp2']) && !empty($_POST['mdp2'])
+            && isset($_POST['email']) && !empty($_POST['email'])
         ){
-            // Tous les champs sont valides
-            // A) Protection contre le XSS (navigateur)
-            $email = strip_tags($_POST['email']);
-            $mdp = strip_tags($_POST['mdp']);
-            $nom = strip_tags($_POST['name']);
+            if(filter_var(($_POST['email']), FILTER_VALIDATE_EMAIL)){
+                if(($_POST['mdp']) === ($_POST['mdp2'])){
+                    // Tous les champs sont valides
+                    // A) Protection contre le XSS (navigateur)
+                    $email = strip_tags($_POST['email']);
+                    $nom = strip_tags($_POST['name']);
+                    $hashed_mdp = password_hash($_POST['mdp'], PASSWORD_ARGON2I);
+        
+                    // B) Protection contre les injections SQL (bdd)
+                    // 1- On écrit la requête
+                    $sql =  "INSERT INTO `users`(`email`, `password`, `nickname`) VALUES (:email, :mdp, :pseudo);";
+                    // 2- On prépare la requêtre
+                    $query = $db->prepare($sql);
+                    // 3- On injecte les valeurs dans les paramètres
+                    $query->bindValue(':email', $email, PDO::PARAM_STR);
+                    $query->bindValue(':mdp', $hashed_mdp, PDO::PARAM_STR);
+                    $query->bindValue(':pseudo', $nom, PDO::PARAM_STR);
+                    // 4- On exécute la requête
+                    $query->execute();
+        
+                }else{
+                    $erreur1 = 'Les mots de passe ne sont pas identiques.';
+                }
 
-            $hashed_mdp = password_hash($mdp, PASSWORD_DEFAULT);
-
-            // B) Protection contre les injections SQL (bdd)
-            // 1- On écrit la requête
-            $sql =  "INSERT INTO `users`(`email`, `password`, `nickname`) VALUES (:email, :mdp, :pseudo);";
-            // 2- On prépare la requêtre
-            $query = $db->prepare($sql);
-            // 3- On injecte les valeurs dans les paramètres
-            $query->bindValue(':email', $email, PDO::PARAM_STR);
-            $query->bindValue(':mdp', $hashed_mdp, PDO::PARAM_STR);
-            $query->bindValue(':pseudo', $nom, PDO::PARAM_STR);
-            // 4- On exécute la requête
-            $query->execute();
-
-
+            }else{
+                die('Email invalide');
+                header('Location: index.php');
+                $erreur2 = "L'email' est incorrect.";
+            }
         }else{
             // Au moins un des champs est invalide
-            $erreur = "Le formulaire est incomplet";
+            $erreur3 = "Le formulaire est incomplet, remplissez tous les champs";
+   
         }
+
+
     }
 
 // I) PARTIE POUR RéCUPERER LES DONNéES DE LA BASE (remplissage tableau)
@@ -44,7 +60,6 @@ $query = $db->query($sql);
 
 // On récupére les données
 $users = $query->fetchAll(PDO::FETCH_ASSOC);
-
 ?>
 
 
@@ -83,7 +98,16 @@ $users = $query->fetchAll(PDO::FETCH_ASSOC);
                 <label for="mdp">Mot de passe :</label>
                 <div><input type="password" name="mdp" id="mdp" /></div>
             </div>
+            <div>
+                <label for="mdp2">Confirmer le mot de passe :</label>
+                <div><input type="password" name="mdp2" id="mdp2" /></div>
+            </div>
             <button>Valider</button>
+            <div>
+                <?php echo "<p>{$erreur1}</p>"?> 
+                <?php echo "<p>{$erreur2}</p>"?> 
+                <?php echo "<p>{$erreur3}</p>"?> 
+            </div>
         </form>
     </main>
 </body>

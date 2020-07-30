@@ -1,5 +1,6 @@
 <?php
     require_once 'include/connect.php';
+    session_start();
 ?>
 
 <!DOCTYPE html>
@@ -21,6 +22,7 @@
     </header>
 
     <main>
+        <p>Bienvenu <?php echo$_SESSION['pseudo'] ?> !</p>
         <h2>Mes articles :</h2>
 
     </main>
