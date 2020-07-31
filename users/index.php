@@ -1,5 +1,5 @@
 <?php
-    include_once 'include/header.php' ;
+    require_once '../include/header.php' ;
 
     $erreur1 ="";
     $erreur2 ="";
