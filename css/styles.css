@@ -45,13 +45,7 @@ img{
 #bonjour{
     text-align: center;
     font-size: 16px;
-    color: seagreen;
-}
-
-.article{
-    border: 1px solid rgb(36, 212, 198);
-    margin-bottom: 30px;
-    padding: 10px;
+    color: #200080;
 }
 
 #ajoutarticle{
@@ -61,4 +55,30 @@ img{
 
 #ajoutarticle section{
     width: 40%;
+}
+
+.article{
+    border: 1px solid #006080;
+    margin: 10px 10%;
+    border-radius: 10px;
+    padding: 10px 20px;
+}
+
+.article a{
+    text-decoration: none;
+    color: #006080;
+}
+
+#categorie{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+#categorie a{
+    text-decoration: none;
+    color: blue;
+}
+
+#categorie a i{
+    color: #006080;
 }

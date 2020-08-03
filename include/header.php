@@ -3,6 +3,7 @@
     session_start();
 
     define('URL', 'http://localhost/blog');
+    require_once 'functions.php';
 
     
 ?>
