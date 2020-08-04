@@ -37,9 +37,10 @@ main{
     padding: 0 30px;
 }
 
-img{
-    width: 300px;
+.img_article{
+    width: 100px;
     margin-top: 40px;
+    margin: auto;
 }
 
 #bonjour{
@@ -67,6 +68,14 @@ img{
 .article a{
     text-decoration: none;
     color: #006080;
+}
+
+.article img{
+    width: 150px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    padding-top: 20px;
 }
 
 #categorie{

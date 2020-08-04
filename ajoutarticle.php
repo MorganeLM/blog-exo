@@ -15,9 +15,6 @@
         header('Location: index.php');
     }
 
-
-
-
     // II) PARTIE POUR AJOUTER LES DONNéES DE LA BASE 
     if(isset($_SESSION['user']) && !empty($_SESSION['user'])){
         // On vérifie que POST n'est pas vide
@@ -33,27 +30,51 @@
                 $titre = strip_tags($_POST['title']);
                 $categorie = strip_tags($_POST['cat']);
 
-                // On récupère et on stocke l'image si elle existe (après validation du if (post rempli) et avant la requête)
-                if(isset($_FILES['image']) && !empty($_FILES['image'])){
+                // Initialiser le nom de l'image null pour que la requête INSERT ensuit fonctionne sans chargement d'image (optionnelle)
+                $nomImage = NULL ;
+
+                // On récupère et on stocke l'image si elle existe (après validation du if (post rempli) et avant la requête) + UPLOAD_ERR_NO_FILE (PHP7.4 rempli $_FILES['image'] même qd pas de fichier mais ajoute cette erreur !)
+                if(
+                    isset($_FILES['image']) && !empty($_FILES['image'])
+                    && $_FILES['image']['error'] != UPLOAD_ERR_NO_FILE
+                ){
                     // On vérifie qu'on n'a pas d'erreur
                     if($_FILES['image']['error'] != UPLOAD_ERR_OK){
-                        header('Location: ajout.php');
+                        header('Location: ajoutarticle.php');
                         exit;
                     }
-                    // On continue si pas d'erreur :
+                    // => On continue si pas d'erreur 
 
                     // On récupère l'extension du fichier envoyé
                     $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+
+                    // On vérifie si le type d'image accepté est respecté (extension + type MIME)
+                    $goodExtensions = ['png', 'jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp'];
+                    $goodMimeTypes = ['image/png', 'image/jpeg'];
+                    $mimeType = $_FILES['image']['type'];
+
+                    if (!in_array($extension, $goodExtensions) || !in_array($mimeType, $goodMimeTypes)){
+                        header('Location: ajoutarticle.php');
+                        exit;
+                    }
+
+           
+                    // On vérifie que le poids max du fichier n'est pas dépassé (1024*1024)
+                    $tailleMax = 1048576 ;
+                    if ($_FILES['image']['size'] > $tailleMax ){
+                        header('Location: ajoutarticle.php');
+                    }
+
                     // On génère un nom de fichier (uniqid = chiffre unique basé sur le timestamp actuel -> milliseconde + on l'encode en md5)
                     $nomImage = md5(uniqid()).'.'.$extension;
                     // On transfère le fichier
                     if(!move_uploaded_file($_FILES['image']['tmp_name'], __DIR__.'/uploads/'.$nomImage)){
                             //  Transfert échoué
                             header('Location: ajout.php');
+                            exit;
                     };
-                    die();
+                  
                 }
-
 
                 // htmlspecialchars pour autoriser les balises ecrites mais desactivées
                 $contenu = htmlspecialchars($_POST['content']);
@@ -154,11 +175,14 @@
             // On récupére les données
             $articles = $query->fetchAll(PDO::FETCH_ASSOC);
             // On remplit le select
+           
 
             foreach ($articles as $article){
+                $content = extrait($article['content'], 200);
+
                 echo "<div class='article'>
                 <h3>{$article['title']}</h3>
-                <p>{$article['content']}</p>
+                <p>{$content}</p>
                 <p>{$article['created_at']}</p>
                 </div>";
             }

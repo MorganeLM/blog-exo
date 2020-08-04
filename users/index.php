@@ -21,6 +21,7 @@
                     $email = strip_tags($_POST['email']);
                     $nom = strip_tags($_POST['name']);
                     $hashed_mdp = password_hash($_POST['mdp'], PASSWORD_ARGON2I);
+                    
         
                     // B) Protection contre les injections SQL (bdd)
                     // 1- On écrit la requête
