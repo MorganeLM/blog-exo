@@ -54,9 +54,3 @@
         </div>
     </header>
     
-    <p id="bonjour">Bonjour 
-            <?php 
-            if(isset($_SESSION['user']['nickname']) && !empty($_SESSION['user']['nickname'])){echo$_SESSION['user']['nickname'];} 
-            ?> 
-            !
-    </p>

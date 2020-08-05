@@ -92,18 +92,32 @@ $categories = $query->fetchAll(PDO::FETCH_ASSOC);
                 // On récupère les données (que pour l'id et fetch assoc pour récupérer que les associations nom-valeur et pas avoir tout en double)
                 $articles_data = $query->fetchAll(PDO::FETCH_ASSOC);
                 
-                foreach ($articles_data as $article){
-                    $created_date = $article['created_at'];
-                    $french_date = formatDate("{$created_date}");
- 
-                    echo "<div class='article'>
-                    <h3><a href='".URL."/article.php?id={$article['id']}'>{$article['title']}</a></h3>
-                    <em>écrit par {$article['nickname']}, le {$french_date}, concernant {$article['name']}</em>
-                    <p>{$article['content']}</p>
+             ?>
+             <?php foreach($articles_data as $article): ?>
+                    <div class='article'>
+    
+                    <?php if(!is_null($article['featured_image'])): ?>
+    
+                        <img src="<?= URL.'/uploads/'.pathinfo($article['featured_image'], PATHINFO_FILENAME).'-200x200.'.pathinfo($article['featured_image'], PATHINFO_EXTENSION) ?>" alt="<?= $article['title'] ?>">
+    
+                    <?php endif; ?>
+    
+    
+                    <h3>
+                        <a href="../article.php?id=<?=$article['id']?>">
+                            <?= $article['title'] ?>
+                        </a>
+                    </h3>
+     
+                    <em>écrit par <?= $article['nickname'] ?>, le <?= formatDate($article['created_at']) ?>, dans la catégorie <?= $article['name'] ?></em>
+    
+                    <p><?= extrait($article['content'], 200)?></p>
                     
-                    </div>";
-                }
+    
+                    </div>
+                <?php endforeach ?>
                 
+                <?php
                 }else{
                     echo '<p><em>Cliquez sur une des catégorie pour afficher les articles correspondants.</em></p>';
                 }

@@ -32,15 +32,27 @@ setlocale (LC_TIME, 'fr_FR.utf8','fra');
                 }
             ?>
 
-            <div class='article'>
+            <div class='article_detail'>
+
                     <?php if(!is_null($article['featured_image'])): ?>
-                        <img src="<?= URL.'/uploads/'.$article['featured_image'] ?>" alt="image postée par <?= $article['nickname'] ?>">
+                        <img src="<?= URL.'/uploads/'.$article['featured_image'] ?>" alt="<?= $article['title'] ?>">
                     <?php endif; ?>
+
                     <h3>
                             <?= $article['title'] ?>
                     </h3>
+
                     <em>écrit par <?= $article['nickname'] ?>, le <?= formatDate($article['created_at']) ?>, dans la catégorie <?= $article['name'] ?></em>
-                    <p><?= htmlspecialchars($article['content'])?></p>
+
+                    <p><?= htmlspecialchars_decode($article['content'])?></p>
+
+                    <p id="modif_article">
+                        <a href="article_modif.php?id=<?= $article['id'] ?>">Editer<i class="las la-edit"></i></a>
+                        ou 
+                        <a href="article_suppr.php?id=<?= $article['id'] ?>">Supprimer<i class="las la-trash-alt"></i></a> 
+                        l'article.
+                    </p>
+
             </div>
             
             <?php
@@ -50,6 +62,7 @@ setlocale (LC_TIME, 'fr_FR.utf8','fra');
             }
             ?>
         </div>
+        <p><a href="<?= URL?>">Retour à la liste des articles</article></a></p>
 
 
     </main>

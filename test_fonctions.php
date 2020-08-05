@@ -6,6 +6,6 @@
 
     // echo extrait('azertyuiop', 6);
 
-    var_dump (mini(__DIR__.'/uploads/74b2505147c12e3b3db9caebe7fa287a.jpg', 200));
+//    mini(__DIR__.'/uploads/7db11146bd481db93c2eb8d57c79e7b4.png', 200));
 
 ?>

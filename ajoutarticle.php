@@ -19,6 +19,9 @@
     if(isset($_SESSION['user']) && !empty($_SESSION['user'])){
         // On vérifie que POST n'est pas vide
         if(!empty($_POST)){
+            // On sauvegarde le contenu de $_POST (du formulaire) dans $_SESSION
+            $_SESSION['form'] = $_POST;
+            
             // POST n'est pas vide, on vérifie tous les champs obligatoires
             if(
                 isset($_POST['title']) && !empty($_POST['title'])
@@ -40,8 +43,9 @@
                 ){
                     // On vérifie qu'on n'a pas d'erreur
                     if($_FILES['image']['error'] != UPLOAD_ERR_OK){
-                        header('Location: ajoutarticle.php');
-                        exit;
+                        // On ajoute un message de session
+                        $_SESSION['message'][] = 'Le transfert du fichier a échoué.';
+                    
                     }
                     // => On continue si pas d'erreur 
 
@@ -53,27 +57,34 @@
                     $goodMimeTypes = ['image/png', 'image/jpeg'];
                     $mimeType = $_FILES['image']['type'];
 
-                    if (!in_array($extension, $goodExtensions) || !in_array($mimeType, $goodMimeTypes)){
-                        header('Location: ajoutarticle.php');
-                        exit;
+                    if (!in_array(strtolower($extension), $goodExtensions) || !in_array($mimeType, $goodMimeTypes)){
+                        $_SESSION['message'][] = 'Le type de l\'image sélectionnée n\'est pas accepté (PNG et JPG uniquement).';
                     }
-
            
                     // On vérifie que le poids max du fichier n'est pas dépassé (1024*1024)
                     $tailleMax = 1048576 ;
                     if ($_FILES['image']['size'] > $tailleMax ){
-                        header('Location: ajoutarticle.php');
+                        $_SESSION['message'][] = 'Le fichier est trop volumineux (1Mo maximum).';
                     }
 
                     // On génère un nom de fichier (uniqid = chiffre unique basé sur le timestamp actuel -> milliseconde + on l'encode en md5)
                     $nomImage = md5(uniqid()).'.'.$extension;
+
+                    if(isset($_SESSION['message'])  && !empty($_SESSION['message'])){
+                        // Si, au moins une erreur, on redirige vers le formulaire
+                        header('Location: ajoutarticle.php'); 
+                        exit;
+                    };
+
                     // On transfère le fichier
                     if(!move_uploaded_file($_FILES['image']['tmp_name'], __DIR__.'/uploads/'.$nomImage)){
                             //  Transfert échoué
-                            header('Location: ajout.php');
+                            header('Location: ajoutarticle.php'); 
                             exit;
                     };
-                  
+
+                    // On crée la miniature
+                    mini(__DIR__.'/uploads/'.$nomImage, 200);
                 }
 
                 // htmlspecialchars pour autoriser les balises ecrites mais desactivées
@@ -98,14 +109,14 @@
                 header('Location: '.URL);
 
 
-            }else{
-                
+            }else{             
                 // Au moins un des champs est invalide
-                $erreur = "Le formulaire est incomplet";
+                $_SESSION['message'][] = 'Le formulaire est incomplet.';
             }
         }
     } else {
         echo '<p> Vous devez être connecté pour poster un article. </p>';
+
         echo '<a href="connexion/index.php"> Se connecter </a>';
     }
 
@@ -114,19 +125,37 @@
 
 <main id="ajoutarticle">
     <section>
+
         <h2>Ajouter un article</h2>
+
+        <?php 
+        // AFFICHAGE DES MESSAGES DE SESSION D'ERREUR 
+            if(isset($_SESSION['message'])  && !empty($_SESSION['message'])):
+                foreach($_SESSION['message'] as $message):
+                ?>
+                    <p class="message_erreur"><?=$message?></p>
+                <?php
+                endforeach;
+                unset($_SESSION['message']);
+            endif;
+        ?>
+
         <form method="post" enctype="multipart/form-data">
         <!-- Encodage : enctype="multipart/form-data" => active la super globale FILES !! -->
             <div >
                 <label for="title">Titre :</label>
-                <div><input type="text" name="title" id="title" /></div>
+                <div>
+                    <input type="text" name="title" id="title" 
+                    value="<?= isset($_SESSION['form']['title']) ? $_SESSION['form']['title'] : "" ?>" />
+                 
+                </div>
             </div>
 
             <div>
                 <label for="cat">Catégorie :</label>
                 <div>
                     <select name="cat" id="cat"  require>
-                        <option value="">-- Choisir une catégorie --</option>
+                        <option>-- Choisir une catégorie --</option>
 
                         <?php
                         // I) PARTIE POUR RéCUPERER LES DONNéES DE LA BASE
@@ -136,17 +165,26 @@
                         // On récupére les données
                         $categories = $query->fetchAll(PDO::FETCH_ASSOC);
                         // On remplit le select
-                        foreach ($categories as $cat){
-                            echo "<option value='{$cat['id']}'>{$cat['name']}</option>";
-                        }
+                        foreach($categories as $cat): 
                         ?>
+
+                            <option value="<?= $cat['id']; ?>" 
+
+                            <?php if(isset($_SESSION['form']['cat']) && $_SESSION['form']['cat'] == $cat['id']){
+                                echo 'selected';
+                            }
+                            ?>
+                        >
+                            <?= $cat['name']; ?>
+                        </option>";
+                        <?php endforeach; ?>
                     </select>
                 </div>
             </div>
 
             <div>
                 <label for="content">Contenu :</label>
-                <div><textarea name="content" id="content"></textarea></div>
+                <div><textarea name="content" id="content"><?= isset($_SESSION['form']['content']) ? $_SESSION['form']['content'] : "" ?></textarea></div>
             </div>
 
             <div>
@@ -160,33 +198,59 @@
             }
             ?>
             >Ajouter</button>
+            
+            <?php 
+            // Supprime la partie form de la session pour libérer espace (j'affiche puis j'efface)
+            unset($_SESSION['form']); 
+            ?>
 
         </form>
     </section>
+
+
+
+
+
+
+
+
+
+
+
+<!-- Bonus -->
+
 
     <section>
         <h2>Articles précédents</h2>
         <div>
             <?php
             // I) PARTIE POUR RéCUPERER LES DONNéES DE LA BASE
-            $sql = 'SELECT * FROM `articles` ORDER BY `created_at` DESC;';
+            $sql = 'SELECT art.*, cat.`name`, u.`nickname` FROM `articles` art
+            LEFT JOIN `categories` cat ON art.`categories_id` = cat.`id`
+            LEFT JOIN `users` u ON art.`users_id` = u.`id`
+            ORDER BY art.`created_at` DESC;';
             // On exécute la requête
             $query = $db->query($sql);
             // On récupére les données
             $articles = $query->fetchAll(PDO::FETCH_ASSOC);
-            // On remplit le select
-           
 
-            foreach ($articles as $article){
-                $content = extrait($article['content'], 200);
-
-                echo "<div class='article'>
-                <h3>{$article['title']}</h3>
-                <p>{$content}</p>
-                <p>{$article['created_at']}</p>
-                </div>";
-            }
             ?>
+
+            <?php foreach($articles as $article): ?>
+                <div class='article'>
+
+                    <h3>
+                        <a href="article.php?id=<?=$article['id']?>">
+                            <?= $article['title'] ?>
+                        </a>
+                    </h3>
+    
+                    <em>écrit par <?= $article['nickname'] ?>, le <?= formatDate($article['created_at']) ?>, dans la catégorie <?= $article['name'] ?></em>
+
+                    <p><?= extrait($article['content'], 200)?></p>
+
+                </div>
+            <?php endforeach ?>
         </div>
 
     </section> 

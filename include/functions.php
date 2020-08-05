@@ -64,10 +64,6 @@ function extrait(string $texte, int $longueur): string
 
 
 
-
-
-
-
 /**
  * Cette fonction génére une miniature d'une image (PNG ou JPG) dans la taille demandée (carré)
  * Le nom du fichier généré est issu du nom du fichier source, sous la forme "brouette-300x300.jpg" pour une taille de 300px
@@ -78,10 +74,6 @@ function extrait(string $texte, int $longueur): string
  */
 function mini(string $fichier, int $taille) : bool
 {
-    // On récupère le chemin du dossier où se trouve l'image source
-    $chemin = pathinfo($fichier, PATHINFO_DIRNAME);
-    $nomFichier = pathinfo($fichier, PATHINFO_BASENAME);
-
     $dimensions = getimagesize($fichier);
     // On définit l'orientation et les décalages qui en découlent
     // On initialise les décalages
@@ -102,12 +94,14 @@ function mini(string $fichier, int $taille) : bool
 
     // On vérifie le type Mime de l'image
     switch($dimensions['mime']) {
-        case "image/png" :
+        case "image/png":
             $imageTemp = imagecreatefrompng($fichier);
             break;
-        case "image/jpeg" :
+        case "image/jpeg":
             $imageTemp = imagecreatefromjpeg($fichier);
             break;
+        default:
+            return false;
     }
 
     // On crée une nouvelle image temporaire en mémoire pour créer la copie
@@ -127,14 +121,26 @@ function mini(string $fichier, int $taille) : bool
         $tailleCarre // Hauteur de la zone de "copie" src
     );
 
+
+    // On récupère le chemin du dossier où se trouve l'image source, son nom, son extension
+    $chemin = pathinfo($fichier, PATHINFO_DIRNAME);
+    $nomFichier = pathinfo($fichier, PATHINFO_FILENAME);
+    $extension = pathinfo($fichier, PATHINFO_EXTENSION);
+    // On génére le nouveau nom de fichier
+    $nouveauFichier = "$chemin/$nomFichier-{$taille}x$taille.$extension"; 
+
     // On enregistre l'image sur le disque
     switch($dimensions['mime']) {
         case "image/png" :
-            imagepng($imageDest, $chemin.$nomFichier."-{$taille}x{$taille}.png");
-            return true;
+            imagepng($imageDest, $nouveauFichier);
+            break;
         case "image/jpeg" :
-            imagejpeg($imageDest, $chemin.'/'.$nomFichier."-{$taille}x{$taille}.jpg");
-            return true;
+            imagejpeg($imageDest, $nouveauFichier);
     }
-    return false;
+
+    // On "détruit" les images en mémoire
+    imagedestroy($imageDest);
+    imagedestroy($imageTemp);
+
+    return true;
 }
