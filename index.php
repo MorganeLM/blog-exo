@@ -12,6 +12,18 @@ setlocale (LC_TIME, 'fr_FR.utf8','fra');
                 !
         </p>
 
+        <?php 
+        // AFFICHAGE DES MESSAGES DE SESSION D'ERREUR (RESET PWD)
+            if(isset($_SESSION['message'])  && !empty($_SESSION['message'])):
+                foreach($_SESSION['message'] as $message):
+                ?>
+                    <p class="message_erreur"><?=$message?></p>
+                <?php
+                endforeach;
+                unset($_SESSION['message']);
+            endif;
+        ?>
+
         <h2>Mes articles :</h2>
 
         <div>

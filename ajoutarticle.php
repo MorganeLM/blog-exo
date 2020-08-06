@@ -1,5 +1,8 @@
 <?php
-    require_once 'include/header.php';
+
+use PHPMailer\PHPMailer\Exception;
+
+require_once 'include/header.php';
 
     // GESTION DES DROITS -> Connecté + ADMIN
     // Connecté ?
@@ -85,8 +88,11 @@
 
                     // On crée la miniature
                     mini(__DIR__.'/uploads/'.$nomImage, 200);
+
+                    
                 }
 
+                
                 // htmlspecialchars pour autoriser les balises ecrites mais desactivées
                 $contenu = htmlspecialchars($_POST['content']);
                 $user_id = $_SESSION['user']['id'];
@@ -105,10 +111,44 @@
                 $query->bindValue(':image_name', $nomImage, PDO::PARAM_STR);
                 // 4- On exécute la requête
                 $query->execute();
+                
+                // On envoie un mail à l'admin ---------------------
+                // On importe config-mail.php
+                require_once 'include/config-mail.php';
+                // On crée le mail
+                try{
+                    // On définit l'expéditeur du mail
+                    $sendmail->setFrom('no-reply@abc.fr', 'MonBlog_expéditeur');
 
+                    // On définit le ou les destinataire(s)
+                    $sendmail->addAddress('admin@monblog.fr', 'Admin');
+
+                    // On définit le sujet du mail
+                    $sendmail->Subject = 'Mon blog : article ajouté';
+
+                    // On active le HTML (true par défaut)
+                    $sendmail->isHTML();
+
+                    // On écrit le contenu du message 
+                    // en HTML
+                    $sendmail->Body = "<h1>Message de blog</h1>
+                                    <p>L'article \"$titre\" a été ajouté par {$_SESSION['user']['nickname']}.</p>";
+                    // en text brut
+                    $sendmail->AltBody = "L'article \"$titre\" a été ajouté par {$_SESSION['user']['nickname']}.";
+
+                    // On envoie le mail
+                    $sendmail->send();
+                    
+
+                }catch(Exception $e){
+                    // Le mail n'est pas parti
+                    echo 'Erreur : ' / $e->errorMessage();
+                }
+                // --------Fin bloc envoi de mail---------
+                
                 header('Location: '.URL);
-
-
+                
+                
             }else{             
                 // Au moins un des champs est invalide
                 $_SESSION['message'][] = 'Le formulaire est incomplet.';

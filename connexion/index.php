@@ -11,8 +11,10 @@
                 <label for="mdp">Mot de passe :</label>
                 <div><input type="password" name="mdp" id="mdp" /></div>
             </div>
+           
             <button>Valider</button>
         </form>
+        <p><a href="forgot-pwd.php">Mot de passe oublié ?</a></p>
 
 <?php
     if(!empty($_POST)){

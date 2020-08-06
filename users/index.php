@@ -1,5 +1,8 @@
 <?php
-    require_once '../include/header.php' ;
+
+use PHPMailer\PHPMailer\Exception;
+
+require_once '../include/header.php' ;
 
     $erreur1 ="";
     $erreur2 ="";
@@ -34,7 +37,43 @@
                     $query->bindValue(':pseudo', $nom, PDO::PARAM_STR);
                     // 4- On exécute la requête
                     $query->execute();
-        
+
+                    // On envoie un mail à l'admin ---------------------
+                    // On importe config-mail.php
+                    require_once '../include/config-mail.php';
+                    // On crée le mail
+                    try{
+                        // On définit l'expéditeur du mail
+                        $sendmail->setFrom('no-reply@abc.fr', 'MonBlog_expéditeur');
+
+                        // On définit le ou les destinataire(s)
+                        $sendmail->addAddress($email, $nom);
+
+                        // On définit le sujet du mail
+                        $sendmail->Subject = 'Inscription réussie sur MonBlog';
+
+                        // On active le HTML (true par défaut)
+                        $sendmail->isHTML();
+
+                        // On écrit le contenu du message 
+                        // en HTML
+                        $sendmail->Body = "<h1>Bienvenue $nom</h1>
+                                        <p>Vous êtes bien inscrit avec l'email $email.</p>";
+                        // en text brut
+                        $sendmail->AltBody = "Bienvenue $nom. Vous êtes bien inscrit avec l'email $email.";
+
+                        // On envoie le mail
+                        $sendmail->send();
+                        
+
+                    }catch(Exception $e){
+                        // Le mail n'est pas parti
+                        echo 'Erreur : ' / $e->errorMessage();
+                    }
+                    // --------Fin bloc envoi de mail---------
+                    
+                    header('Location: '.URL.'/connexion/index.php');
+            
                 }else{
                     $erreur1 = 'Les mots de passe ne sont pas identiques.';
                 }
