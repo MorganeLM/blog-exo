@@ -1,4 +1,20 @@
 <?php include_once '../include/header.php' ?>
+<!-- Fichier connexion (ici connexion/index.php) a mettre de préférence à la racine, sinon penser à changer le path du cookie -->
+<?php 
+// AFFICHAGE DES MESSAGES DE SESSION D'ERREUR (RESET PWD)
+    if(isset($_SESSION['message'])  && !empty($_SESSION['message'])):
+        foreach($_SESSION['message'] as $message):
+        ?>
+            <p class="message_success"><?=$message?></p>
+        <?php
+        endforeach;
+        unset($_SESSION['message']);
+    endif;
+?>
+<?php 
+// AFFICHAGE DES INFOS UTILISATEURS SI SE SOUVENIR DE MOI ACTIF
+
+?>
 
     <main>
         <h2>Se connecter :</h2>
@@ -10,6 +26,10 @@
             <div>
                 <label for="mdp">Mot de passe :</label>
                 <div><input type="password" name="mdp" id="mdp" /></div>
+            </div>
+            <div>     
+                <input type="checkbox" name="remember" id="remember" />
+                <label for="remember">se souvenir de moi </label>
             </div>
            
             <button>Valider</button>
@@ -45,9 +65,6 @@
             $valid = password_verify($mdp_entre, $user['password']);
 
             if ($valid) {
-                echo '<p>---- Mot de passe valide! ----</p>';
-
-                var_dump($_SESSION);
 
                 $_SESSION['user'] = [
                     'id'        => $user['id'],
@@ -55,7 +72,24 @@
                     'email'     => $user['email'],
                     'roles'     => $user['roles']
                 ];
-                
+
+                if(isset($_POST['remember']) && $_POST['remember'] == true){
+                    $token_cookie = md5(uniqid());
+                    setcookie('RememberMe', $token_cookie, [
+                        'samesite' => 'Strict',
+                        'expires' => strtotime('+ 1 week'),
+                        'path' => '/blog'
+                    ]);
+
+                    $sql = "UPDATE `users` SET `remember_token` = '$token_cookie' WHERE `id` = '{$user['id']}';"; 
+                    // On exécute la requête
+                    $query = $db->query($sql);
+                }
+                // echo '<pre>';
+                // var_dump($_COOKIE);
+                // echo '</pre>';
+                // exit;
+
                 header('Location: ../index.php');
 
             } else {

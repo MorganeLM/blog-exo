@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : jeu. 06 août 2020 à 17:22
+-- Généré le : ven. 07 août 2020 à 17:04
 -- Version du serveur :  10.4.13-MariaDB
--- Version de PHP : 7.2.32
+-- Version de PHP : 7.4.9
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -77,7 +77,8 @@ CREATE TABLE `users` (
   `roles` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '["ROLE_USER"]' CHECK (json_valid(`roles`)),
   `nickname` varchar(50) NOT NULL,
   `reset_token` varchar(255) DEFAULT NULL,
-  `expiration_date` datetime DEFAULT NULL
+  `expiration_date` datetime DEFAULT NULL,
+  `remember_token` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --

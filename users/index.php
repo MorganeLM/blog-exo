@@ -121,6 +121,12 @@ $users = $query->fetchAll(PDO::FETCH_ASSOC);
                 <label for="mdp2">Confirmer le mot de passe :</label>
                 <div><input type="password" name="mdp2" id="mdp2" /></div>
             </div>
+
+            <div>     
+                <input type="checkbox" name="remember" id="remember" />
+                <label for="remember">RGPD to do</label>
+            </div>
+
             <button>Valider</button>
             <div>
                 <?php echo "<p>{$erreur1}</p>"?> 

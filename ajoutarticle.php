@@ -4,6 +4,7 @@ use PHPMailer\PHPMailer\Exception;
 
 require_once 'include/header.php';
 
+
     // GESTION DES DROITS -> Connecté + ADMIN
     // Connecté ?
     if(!isset($_SESSION['user']) && empty($_SESSION['user'])){
@@ -73,7 +74,7 @@ require_once 'include/header.php';
                     // On génère un nom de fichier (uniqid = chiffre unique basé sur le timestamp actuel -> milliseconde + on l'encode en md5)
                     $nomImage = md5(uniqid()).'.'.$extension;
 
-                    if(isset($_SESSION['message'])  && !empty($_SESSION['message'])){
+                    if(isset($_SESSION['message']) && !empty($_SESSION['message'])){
                         // Si, au moins une erreur, on redirige vers le formulaire
                         header('Location: ajoutarticle.php'); 
                         exit;

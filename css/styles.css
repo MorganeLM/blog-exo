@@ -72,6 +72,16 @@ main{
     text-transform: uppercase;
 }
 
+.message_success{
+    color: green;
+    border-left: 2px solid green;
+    padding-left: 10px;
+    font-weight: bold;
+    font-family:  'Trebuchet MS', Arial, sans-serif;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
 .article{
     border: 1px solid #006080;
     margin: 10px 10%;
@@ -123,4 +133,9 @@ main{
 
 #categorie a i{
     color: #006080;
+}
+
+.comment{
+    margin-top: 40px;
+    
 }

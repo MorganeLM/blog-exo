@@ -65,6 +65,21 @@ setlocale (LC_TIME, 'fr_FR.utf8','fra');
         <p><a href="<?= URL?>">Retour à la liste des articles</article></a></p>
 
 
+        <div class='comment'>
+
+        <h3>Commentaire(s)</h3>
+        <form method="post">
+            <div>
+                <label for="comment">Ecrivez votre commentaire :</label>
+                <div><textarea name="comment" id="" ></textarea></div>
+            </div>
+            <button>Commenter</button>
+      
+        </form>
+
+        </div>
+
+
     </main>
 </body>
 </html>
